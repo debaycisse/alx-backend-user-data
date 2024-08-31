@@ -36,7 +36,7 @@ def get_db():
     return _con
 
 
-def filter_datum(fields: Sequence, redaction: str,
+def filter_datum(fields: List[str], redaction: str,
                  message: str, seperator: str) -> str:
     """Obfuscates a given message, based on a given fields
 
