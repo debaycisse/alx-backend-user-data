@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """This module houses declaration for a function, named
 filter_datum and other functions that helps in redacting a PII data"""
+
 import re
 import os
 from mysql.connector import connect  # type: ignore
@@ -12,7 +13,34 @@ from typing import (
 import logging
 
 
-def filter_datum(fields: List[str], redaction: str,
+PII_FIELDS: Tuple[str, ...] = ('email', 'phone', 'ssn', 'password', 'ip')
+
+
+def get_logger() -> logging.Logger:
+    """Returns a logging.Logger object, which
+    creates and configures an handler for it"""
+    logger = logging.getLogger('user_data')
+    logger.setLevel(logging.INFO)
+    logger.propagate = False
+    stream_handler = logging.StreamHandler()
+    stream_handler.setFormatter(RedactingFormatter(PII_FIELDS))
+    logger.addHandler(stream_handler)
+    return logger
+
+
+def get_db() -> connect:
+    """Connects to a database via an environment variable
+    and returns the connection"""
+    _con = connect(
+                   host=os.getenv('PERSONAL_DATA_DB_HOST'),
+                   user=os.getenv('PERSONAL_DATA_DB_USERNAME'),
+                   password=os.getenv('PERSONAL_DATA_DB_PASSWORD'),
+                   database=os.getenv('PERSONAL_DATA_DB_NAME')
+    )
+    return _con
+
+
+def filter_datum(fields: Tuple[str, ...], redaction: str,
                  message: str, seperator: str) -> str:
     """Obfuscates a given message, based on a given fields
 
@@ -40,7 +68,7 @@ class RedactingFormatter(logging.Formatter):
     FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
     SEPARATOR = ";"
 
-    def __init__(self, fields: List[str]):
+    def __init__(self, fields: Tuple[str, ...]):
         """Initializes an instance of this class"""
         super(RedactingFormatter, self).__init__(self.FORMAT)
         self.FIELDS = fields
