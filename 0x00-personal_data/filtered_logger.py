@@ -25,7 +25,28 @@ def filter_datum(fields: List[str], redaction: str,
     Returns:
         returns an obfuscated version of the passed message
     """
-    for field in fields:
-        message = re.sub(rf'{field}=.+?(?={seperator})',
-                         rf'{field}={redaction}', message)
+    for f in fields:
+        message = re.sub(rf'{f}=.+?(?={seperator})',
+                         rf'{f}={redaction}', message)
     return message
+
+
+class RedactingFormatter(logging.Formatter):
+    """ Redacting Formatter class.
+        It formats a given data using the below format in the FORNAT variable
+    """
+
+    REDACTION = "***"
+    FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
+    SEPARATOR = ";"
+
+    def __init__(self, fields: List[str]):
+        """Initializes an instance of this class"""
+        super(RedactingFormatter, self).__init__(self.FORMAT)
+        self.FIELDS = fields
+
+    def format(self, record: logging.LogRecord) -> str:
+        """formats a given record, based on the fields, and other factors"""
+        record.msg = filter_datum(self.FIELDS, self.REDACTION,
+                                  record.getMessage(), self.SEPARATOR)
+        return super(RedactingFormatter, self).format(record)
