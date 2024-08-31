@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """This module houses declaration for a function, named filter_datum"""
 import re
+import os
+from mysql.connector import connect  # type: ignore
 from typing import (
     Sequence,
     Tuple
@@ -20,6 +22,18 @@ def get_logger() -> logging.Logger:
     stream_handler.setFormatter(RedactingFormatter(PII_FIELDS))
     logger.addHandler(stream_handler)
     return logger
+
+
+def get_db():
+    """Connects to a database via an environment variable
+    and returns the connection"""
+    _con = connect(
+                   host=os.getenv('PERSONAL_DATA_DB_HOST', 'localhost'),
+                   user=os.getenv('PERSONAL_DATA_DB_USERNAME', 'root'),
+                   password=os.getenv('PERSONAL_DATA_DB_PASSWORD', ''),
+                   database=os.getenv('PERSONAL_DATA_DB_NAME')
+    )
+    return _con
 
 
 def filter_datum(fields: Sequence, redaction: str,
