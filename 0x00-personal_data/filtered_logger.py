@@ -32,7 +32,11 @@ def get_logger() -> logging.Logger:
 
 def get_db() -> Union[PooledMySQLConnection, MySQLConnectionAbstract]:
     """Connects to a database via an environment variable
-    and returns the connection"""
+    and returns the connection
+    
+    Returns:
+        a connection instance from the connection pool
+    """
     return connect(
                    host=os.getenv('PERSONAL_DATA_DB_HOST'),
                    user=os.getenv('PERSONAL_DATA_DB_USERNAME'),
