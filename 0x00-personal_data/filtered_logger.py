@@ -6,15 +6,19 @@ import re
 import os
 from mysql.connector import connect
 from mysql.connector.connection import MySQLConnection
+from mysql.connector.cursor import MySQLCursor
 from typing import (
     Sequence,
     Tuple,
     Union,
+    Optional,
+    Any,
 )
 import logging
+from datetime import datetime
 
 
-PII_FIELDS: Tuple[str, ...] = ('email', 'phone', 'ssn', 'password', 'ip')
+PII_FIELDS: Tuple[str, ...] = ('name', 'email', 'phone', 'ssn', 'password')
 
 
 def get_logger() -> logging.Logger:
@@ -82,3 +86,25 @@ class RedactingFormatter(logging.Formatter):
         record.msg = filter_datum(self.FIELDS, self.REDACTION,
                                   record.getMessage(), self.SEPARATOR)
         return super(RedactingFormatter, self).format(record)
+
+
+def main() -> None:
+    """Main entrance to the program. Executes the program from this point"""
+    db: MySQLConnection = get_db()
+    logger: logging.Logger = get_logger()
+    cursor: MySQLCursor = db.cursor()
+    cursor.execute('SELECT * FROM users;')
+    for rec in cursor:
+        td: Union[datetime, Any] = rec[6]
+        td_str: str = td.strftime("%Y-%m-%d %H:%M:%S")
+        log_msg = (f'name={rec[0]};', f'email={rec[1]};', f'phone={rec[2]};',
+                   f'ssn={rec[3]};', f'password={rec[4]};', f'ip={rec[5]};',
+                   'last_login={};'.format(td_str),
+                   f'user_agent={rec[7]};')
+        logger.log(level=logger.level, msg=' '.join(log_msg))
+    cursor.close()
+    db.close()
+
+
+if __name__ == '__main__':
+    main()
