@@ -4,11 +4,13 @@ filter_datum and other functions that helps in redacting a PII data"""
 
 import re
 import os
-from mysql.connector import connect  # type: ignore
+from mysql.connector import connect
+from mysql.connector.pooling import PooledMySQLConnection
+from mysql.connector.connection import MySQLConnectionAbstract
 from typing import (
     Sequence,
     Tuple,
-    List
+    Union,
 )
 import logging
 
@@ -19,25 +21,24 @@ PII_FIELDS: Tuple[str, ...] = ('email', 'phone', 'ssn', 'password', 'ip')
 def get_logger() -> logging.Logger:
     """Returns a logging.Logger object, which
     creates and configures an handler for it"""
-    logger = logging.getLogger('user_data')
+    logger: logging.Logger = logging.getLogger('user_data')
     logger.setLevel(logging.INFO)
     logger.propagate = False
-    stream_handler = logging.StreamHandler()
+    stream_handler: logging.StreamHandler = logging.StreamHandler()
     stream_handler.setFormatter(RedactingFormatter(PII_FIELDS))
     logger.addHandler(stream_handler)
     return logger
 
 
-def get_db() -> connect:
+def get_db() -> Union[PooledMySQLConnection, MySQLConnectionAbstract]:
     """Connects to a database via an environment variable
     and returns the connection"""
-    _con = connect(
+    return connect(
                    host=os.getenv('PERSONAL_DATA_DB_HOST'),
                    user=os.getenv('PERSONAL_DATA_DB_USERNAME'),
                    password=os.getenv('PERSONAL_DATA_DB_PASSWORD'),
                    database=os.getenv('PERSONAL_DATA_DB_NAME')
     )
-    return _con
 
 
 def filter_datum(fields: Tuple[str, ...], redaction: str,
