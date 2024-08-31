@@ -5,8 +5,7 @@ filter_datum and other functions that helps in redacting a PII data"""
 import re
 import os
 from mysql.connector import connect
-from mysql.connector.pooling import PooledMySQLConnection
-from mysql.connector.connection import MySQLConnectionAbstract
+from mysql.connector.connection import MySQLConnection
 from typing import (
     Sequence,
     Tuple,
@@ -30,10 +29,10 @@ def get_logger() -> logging.Logger:
     return logger
 
 
-def get_db() -> Union[PooledMySQLConnection, MySQLConnectionAbstract]:
+def get_db() -> MySQLConnection:
     """Connects to a database via an environment variable
     and returns the connection
-    
+
     Returns:
         a connection instance from the connection pool
     """
