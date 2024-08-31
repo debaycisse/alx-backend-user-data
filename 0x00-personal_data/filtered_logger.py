@@ -1,39 +1,15 @@
 #!/usr/bin/env python3
-"""This module houses declaration for a function, named filter_datum"""
+"""This module houses declaration for a function, named
+filter_datum and other functions that helps in redacting a PII data"""
 import re
 import os
 from mysql.connector import connect  # type: ignore
 from typing import (
     Sequence,
-    Tuple
+    Tuple,
+    List
 )
 import logging
-
-
-PII_FIELDS: Tuple[str, ...] = ('name', 'email', 'phone', 'ssn', 'password')
-
-
-def get_logger() -> logging.Logger:
-    """returns a logger object"""
-    logger = logging.getLogger('user_data')
-    logger.setLevel(logging.INFO)
-    logger.propagate = False
-    stream_handler = logging.StreamHandler()
-    stream_handler.setFormatter(RedactingFormatter(PII_FIELDS))
-    logger.addHandler(stream_handler)
-    return logger
-
-
-def get_db():
-    """Connects to a database via an environment variable
-    and returns the connection"""
-    _con = connect(
-                   host=os.getenv('PERSONAL_DATA_DB_HOST', 'localhost'),
-                   user=os.getenv('PERSONAL_DATA_DB_USERNAME', 'root'),
-                   password=os.getenv('PERSONAL_DATA_DB_PASSWORD', ''),
-                   database=os.getenv('PERSONAL_DATA_DB_NAME')
-    )
-    return _con
 
 
 def filter_datum(fields: List[str], redaction: str,
@@ -53,23 +29,3 @@ def filter_datum(fields: List[str], redaction: str,
         message = re.sub(rf'{field}=.+?(?={seperator})',
                          rf'{field}={redaction}', message)
     return message
-
-
-class RedactingFormatter(logging.Formatter):
-    """ Redacting Formatter class
-    """
-
-    REDACTION = "***"
-    FORMAT = "[HOLBERTON] %(name)s %(levelname)s %(asctime)-15s: %(message)s"
-    SEPARATOR = ";"
-
-    def __init__(self, fields: Tuple[str, ...]):
-        """Initializes an instance of this class"""
-        super(RedactingFormatter, self).__init__(self.FORMAT)
-        self.FIELDS = fields
-
-    def format(self, record: logging.LogRecord) -> str:
-        """formats a given record, based on the fields, and other factors"""
-        record.msg = filter_datum(self.FIELDS, self.REDACTION,
-                                  record.getMessage(), self.SEPARATOR)
-        return super(RedactingFormatter, self).format(record)
