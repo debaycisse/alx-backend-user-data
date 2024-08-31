@@ -6,8 +6,8 @@ import re
 import os
 from mysql.connector import connect
 from mysql.connector.connection import MySQLConnection
-from mysql.connector.pooling import PooledMySQLConnection
-from mysql.connector.connection import MySQLConnectionAbstract
+from mysql.connector.pooling import PooledMySQLConnection as PMSC
+from mysql.connector.connection import MySQLConnectionAbstract as MCA
 from typing import (
     Sequence,
     Tuple,
@@ -31,7 +31,7 @@ def get_logger() -> logging.Logger:
     return logger
 
 
-def get_db() -> Union[MySQLConnection, PooledMySQLConnection, MySQLConnectionAbstract]:
+def get_db() -> Union[MySQLConnection, PMSC, MCA]:
     """Connects to a database via an environment variable
     and returns the connection
 
