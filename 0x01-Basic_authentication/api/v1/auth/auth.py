@@ -20,7 +20,22 @@ class Auth:
         Returns:
             False for now
         """
-        return False
+        if (not path) or (not excluded_paths) or (len(excluded_paths) == 0):
+            return True
+        if path in excluded_paths:
+            return False
+        return True
+
+        if path.endswith('/'):
+            for p in excluded_paths:
+                if not p.endswith('/'):
+                    p = p + '/'
+                    if path == p:
+                        return False
+        for p in excluded_paths:
+            if p.endswith('/'):
+                path_s = path 
+
     
     def authorization_header(self, request=None) -> str:
         """Managest the authorization header
