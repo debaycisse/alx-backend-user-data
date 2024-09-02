@@ -12,13 +12,13 @@ class Auth:
     """Manages the authentication aspect of the API"""
 
     def require_auth(self, path: str, excluded_paths: List[str]) -> bool:
-        """Checkes if a resource requires authentication and acts accordingly
+        """Checkes if a resource requires authentication via its url
         Args:
-            path - the path
-            excluded_paths - the excluded path
+            path - a resource uri to be checked
+            excluded_paths - list of excluded resources' uris
 
         Returns:
-            False for now
+            False, if a uri is excluded in the exclusion list, otherwise True
         """
         if (not path) or (not excluded_paths) or (len(excluded_paths) == 0):
             return True
@@ -44,7 +44,9 @@ class Auth:
         Returns:
             None for now
         """
-        return None
+        if (not request) or (not request.headers.get("Authorization")):
+            return None
+        return request.headers.get("Authorization")
 
     def current_user(self, request=None) -> TypeVar('User'):
         """Manages a typical user of the application
