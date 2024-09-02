@@ -3,6 +3,7 @@
 """
 from flask import jsonify, abort
 from api.v1.views import app_views
+from typing import NoReturn
 
 
 @app_views.route('/status', methods=['GET'], strict_slashes=False)
@@ -27,7 +28,7 @@ def stats() -> str:
 
 
 @app_views.route('/unauthorized', strict_slashes=False)
-def test_unauthorized() -> None:
+def test_unauthorized() -> NoReturn:
     """GET /api/v1/unauthorized
     Aborts connection and raises 401 HTTP Exception
     """
@@ -35,7 +36,7 @@ def test_unauthorized() -> None:
 
 
 @app_views.route('/forbidden', strict_slashes=False)
-def test_forbidden() -> None:
+def test_forbidden() -> NoReturn:
     """GET /api/v1/forbidden
     Aborts connection and raises 403 HTTP Exception
     """
