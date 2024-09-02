@@ -29,6 +29,14 @@ def stats() -> str:
 @app_views.route('/unauthorized', strict_slashes=False)
 def test_unauthorized() -> None:
     """GET /api/v1/unauthorized
-    Aborts connection
+    Aborts connection and raises 401 HTTP Exception
     """
     abort(401)
+
+
+@app_views.route('/forbidden', strict_slashes=False)
+def test_forbidden() -> None:
+    """GET /api/v1/forbidden
+    Aborts connection and raises 403 HTTP Exception
+    """
+    abort(403)
