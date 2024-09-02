@@ -57,7 +57,3 @@ class Auth:
             an instance of the user model
         """
         return None
-
-
-class BasicAuth(Auth):
-    """Handles basic authentication scheme"""
