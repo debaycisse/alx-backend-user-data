@@ -8,6 +8,26 @@ from typing import (
 )
 
 
+def match_wildcard(path: str, specific_path: str) -> bool:
+    """Manages wildcard character in exlcuded path list
+
+    Args:
+        path - the path that is to be validated
+        specific_path - a path among paths in excluded paths list
+
+    Returns:
+        True if the widcard does not include path, otherwise False
+    """
+    splitted_path = specific_path.split('/')
+    for i in range(1, 3):
+        if splitted_path[i] not in path:
+            return True
+    len_main_dir = len(splitted_path[-1])
+    if splitted_path[-1][:len_main_dir - 1] not in path:
+        return True
+    return False
+
+
 class Auth:
     """Manages the authentication aspect of the API"""
 
@@ -24,16 +44,18 @@ class Auth:
             return True
         if path.endswith('/'):
             for p in excluded_paths:
+                if p.endswith('*'):
+                    return match_wildcard(path, p)
                 if not p.endswith('/'):
                     p = p + '/'
-                if path == p:
-                    return False
+                    return path == p
         for p in excluded_paths:
             p_path = path
             if p.endswith('/'):
                 p_path = path + '/'
-            if p == p_path:
-                return False
+                return p == p_path
+            if p.endswith('*'):
+                return match_wildcard(path, p)
         return True
 
     def authorization_header(self, request=None) -> str:
