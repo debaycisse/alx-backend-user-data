@@ -77,7 +77,7 @@ class BasicAuth(Auth):
             return (None, None)
         if ':' not in decoded_base64_authorization_header:
             return (None, None)
-        cred = decoded_base64_authorization_header.split(":")
+        cred = decoded_base64_authorization_header.split(":", 1)
         return (cred[0], cred[1])
 
     def user_object_from_credentials(self, user_email: str,
@@ -107,7 +107,14 @@ class BasicAuth(Auth):
         return None
 
     def current_user(self, request=None) -> TypeVar('User'):
-        """"""
+        """Retrieves a current user's data from the db
+
+        Args:
+            request - a user's request, which contains all necessary headers
+
+        Returns:
+            an instance of the user, based on the Authorization header
+        """
         auth = Auth()
         auth_header = auth.authorization_header(request=request)
         auth_b64 = self.extract_base64_authorization_header(auth_header)
