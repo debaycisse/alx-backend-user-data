@@ -5,6 +5,7 @@ from api.v1.auth.auth import Auth
 from base64 import standard_b64decode
 from models.user import User
 from typing import TypeVar
+from api.v1.auth.auth import Auth
 
 
 class BasicAuth(Auth):
@@ -50,7 +51,11 @@ class BasicAuth(Auth):
             decoded_value = standard_b64decode(base64_authorization_header)
         except Exception:
             return None
-        return decoded_value.decode('utf-8')
+        try:
+            decoded_value = decoded_value.decode('utf-8')
+        except UnicodeDecodeError:
+            return None
+        return decoded_value
 
     def extract_user_credentials(self,
                                  decoded_base64_authorization_header: str
@@ -100,3 +105,12 @@ class BasicAuth(Auth):
             if _user.is_valid_password(user_pwd):
                 return _user
         return None
+
+    def current_user(self, request=None) -> TypeVar('User'):
+        """"""
+        auth = Auth()
+        auth_header = auth.authorization_header(request=request)
+        auth_b64 = self.extract_base64_authorization_header(auth_header)
+        b64_decoded_val = self.decode_base64_authorization_header(auth_b64)
+        user_cred = self.extract_user_credentials(b64_decoded_val)
+        return self.user_object_from_credentials(*user_cred)
