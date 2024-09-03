@@ -3,6 +3,8 @@
 
 from api.v1.auth.auth import Auth
 from base64 import standard_b64decode
+from models.user import User
+from typing import TypeVar
 
 
 class BasicAuth(Auth):
@@ -72,3 +74,29 @@ class BasicAuth(Auth):
             return (None, None)
         cred = decoded_base64_authorization_header.split(":")
         return (cred[0], cred[1])
+
+    def user_object_from_credentials(self, user_email: str,
+                                     user_pwd: str) -> TypeVar('User'):
+        """Retrieves a user's instance, based a provided email and password
+
+        Args:
+            user_email - the email address of a user to be retrieved
+            user_pwd - password of a user whose instance is to be retrieved
+
+        Returns:
+            a user's instance that matches the given
+            credentials or none if user does not exists
+        """
+        if ((not user_email) or (not user_pwd)):
+            return None
+        if ((not isinstance(user_email, str)) or
+           (not isinstance(user_pwd, str))):
+            return None
+        if User.count() == 0:
+            return None
+        _user = User.search({"email": user_email})
+        if len(_user) > 0:
+            _user = _user[0]
+            if _user.is_valid_password(user_pwd):
+                return _user
+        return None
