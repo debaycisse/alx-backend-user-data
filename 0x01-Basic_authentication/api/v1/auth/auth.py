@@ -48,14 +48,20 @@ class Auth:
                     return match_wildcard(path, p)
                 if not p.endswith('/'):
                     p = p + '/'
-                    return path == p
+                if path == p:
+                    return False
+            return True
         for p in excluded_paths:
             p_path = path
             if p.endswith('/'):
-                p_path = path + '/'
-                return p == p_path
+                if not p_path.endswith('/'):
+                    p_path = path + '/'
+                if p == p_path:
+                    return False
             if p.endswith('*'):
                 return match_wildcard(path, p)
+            if p_path == p:
+                return False
         return True
 
     def authorization_header(self, request=None) -> str:
