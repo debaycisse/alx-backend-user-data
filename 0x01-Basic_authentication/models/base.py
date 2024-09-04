@@ -106,7 +106,10 @@ class Base():
         """ Count all objects
         """
         s_class = cls.__name__
-        return len(DATA[s_class].keys())
+        s_class_objs = DATA.get(s_class)
+        if s_class_objs:
+            return len(s_class_objs.keys())
+        return 0
 
     @classmethod
     def all(cls) -> Iterable[TypeVar('Base')]:
