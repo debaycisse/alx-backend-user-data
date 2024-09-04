@@ -67,7 +67,7 @@ class Auth:
     def authorization_header(self, request=None) -> str:
         """Managest the authorization header
         Args:
-            request - the request
+            request - the request from which the authorization is fetched
 
         Returns:
             None for now
