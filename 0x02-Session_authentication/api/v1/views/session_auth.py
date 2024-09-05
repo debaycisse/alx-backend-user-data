@@ -5,9 +5,9 @@ from os import getenv
 
 
 @app_views.route("/auth_session/login",
-                 methods=['POST'], strict_slashes=False)
+                 methods=["POST"], strict_slashes=False)
 def login():
-    """"""
+    """Logs an existing user in to the system"""
     email = request.form.get("email")
     if email is None:
         return jsonify({"error": "email missing"}), 400
@@ -26,3 +26,13 @@ def login():
     response_data = jsonify(user.to_json())
     response_data.set_cookie(cookie_name, session_id)
     return response_data
+
+
+@app_views.route("/auth_session/logout",
+                 methods=["DELETE"], strict_slashes=False)
+def logout():
+    """Logs a current user out of the system"""
+    from api.v1.app import auth
+    if not auth.destroy_session(request):
+        abort(404)
+    return jsonify({}), 200
