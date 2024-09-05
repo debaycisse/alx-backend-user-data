@@ -38,7 +38,7 @@ class SessionAuth(Auth):
             user ID that is associated with
             the given session ID, otherwise None
         """
-        if session_id is None or (not isinstance(session_id, str)):
+        if (session_id is None) or (type(session_id) is not str):
             return None
         return self.user_id_by_session_id.get(session_id)
 
@@ -58,7 +58,7 @@ class SessionAuth(Auth):
         session_id = self.session_cookie(request=request)
         if session_id is None:
             return None
-        user_id = self.user_id_for_session_id(session_id=session_id)
+        user_id = self.user_id_for_session_id(session_id)
         if user_id:
             return User.get(user_id)
         return None
