@@ -26,7 +26,7 @@ elif getenv('AUTH_TYPE') == "auth":
 @app.before_request
 def before_request():
     """Handles the authentication aspect to secure some resources"""
-
+    request.current_user = auth.current_user(request=request)
     if auth is not None:
         excluded_paths = ['/api/v1/status/',
                           '/api/v1/unauthorized/',
