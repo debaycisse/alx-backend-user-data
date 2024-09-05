@@ -6,6 +6,7 @@ from typing import (
     List,
     TypeVar
 )
+from os import getenv
 
 
 def match_wildcard(path: str, specific_path: str) -> bool:
@@ -85,3 +86,14 @@ class Auth:
             an instance of the user model
         """
         return None
+
+    def session_cookie(self, request=None):
+        """Retrieves a cookie value from a request
+
+        Args:
+            request - a typical request, which contains a cookie's value
+        """
+        if request is None:
+            return None
+        _my_session_id = getenv("SESSION_NAME")
+        return request.cookies.get(_my_session_id)
