@@ -90,6 +90,7 @@ class Base():
         """
         s_class = self.__class__.__name__
         self.updated_at = datetime.utcnow()
+        print('self id : ', self.id)
         DATA[s_class][self.id] = self
         self.__class__.save_to_file()
 
@@ -136,5 +137,5 @@ class Base():
                 if (getattr(obj, k) != v):
                     return False
             return True
-        
+
         return list(filter(_search, DATA[s_class].values()))
