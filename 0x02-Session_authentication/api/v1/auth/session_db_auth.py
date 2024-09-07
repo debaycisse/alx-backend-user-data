@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
 """This module houses the implementation of a class, named SessionDBAuth"""
 from .session_exp_auth import SessionExpAuth
-from models.user_session import UserSession
+from models.user_session import (
+    UserSession,
+    TIMESTAMP_FORMAT
+)
 from models.user import User
 from uuid import uuid4
+from datetime import (
+    datetime,
+    timedelta
+)
 
 
 class SessionDBAuth(SessionExpAuth):
@@ -49,6 +56,12 @@ class SessionDBAuth(SessionExpAuth):
             return None
         session_obj_list = UserSession.search({"id": session_id})
         if len(session_obj_list) != 1:
+            return None
+        session_dur = session_obj_list[0].to_json().get("created_at")
+        session_dur = datetime.strptime(session_dur, TIMESTAMP_FORMAT)
+        session_dur += timedelta(seconds=self.session_duration)
+        current_t = datetime.utcnow()
+        if session_dur < current_t:
             return None
         return session_obj_list[0].to_json().get("user_id")
     

@@ -1,6 +1,9 @@
 #!/usr/bin/env python3
 """This module houses an implementation of a class, named UserSession"""
-from .base import Base
+from .base import (
+    Base,
+    TIMESTAMP_FORMAT
+)
 
 
 class UserSession(Base):
