@@ -68,4 +68,9 @@ class SessionDBAuth(SessionExpAuth):
         user_id = self.user_id_for_session_id(session_id)
         if user_id is None:
             return False
-        session
+        user_session_obj = UserSession.get(user_id)
+        try:
+            user_session_obj.remove()
+        except Exception:
+            return False
+        return True
