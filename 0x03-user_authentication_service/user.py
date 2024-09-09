@@ -23,8 +23,8 @@ class User(Base):
     reset_token, a nullable string
     """
     __tablename__ = 'users'
-    id: int = Column(Integer, primary_key=True)
-    email: str = Column(String(250), nullable=False)
-    hashed_password: str = Column(String(250), nullable=False)
-    session_id: str = Column(String(250), nullable=True)
-    reset_token: str = Column(String(250), nullable=True)
+    id: Column = Column(Integer, primary_key=True)
+    email: Column = Column(String(250), nullable=False)
+    hashed_password: Column = Column(String(250), nullable=False)
+    session_id: Column = Column(String(250), nullable=True)
+    reset_token: Column = Column(String(250), nullable=True)
