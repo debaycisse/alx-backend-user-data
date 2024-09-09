@@ -39,6 +39,4 @@ class DB:
             session.commit()
         except Exception as e:
             session.rollback()
-        finally:
-            session.close()
         return user
