@@ -8,7 +8,12 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import InvalidRequestError
 
 from user import Base, User
-from typing import TypeVar, Union
+from typing import (
+    Union,
+    List,
+    Dict,
+    Any
+)
 
 
 class DB:
@@ -43,7 +48,7 @@ class DB:
             session.rollback()
         return user
 
-    def find_user_by(self, *args, **kwargs) -> User:
+    def find_user_by(self, *args: List, **kwargs: Any) -> User:
         """Finds a given user based a given keyword argument(s)
 
         Args:
@@ -64,3 +69,25 @@ class DB:
         except InvalidRequestError:
             raise InvalidRequestError
         return user
+
+    def update_user(self, user_id: int, **kwargs: Any) -> None:
+        """Updates a given user with a given attributes
+
+        Args:
+            user_id - the id of the user instance
+            whose attributes are to be updated
+            kwargs - a list of arbitrary keyword arguments
+        """
+        session: Session = self._session
+        user = self.find_user_by(id=user_id)
+        if not (user is None):
+            try:
+                for k, v in kwargs.items():
+                    if hasattr(user, k):
+                        setattr(user, k, v)
+                    else:
+                        raise ValueError
+            except ValueError:
+                session.rollback()
+                raise ValueError("Invalid attribute")
+            session.commit()

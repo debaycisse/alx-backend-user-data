@@ -1,5 +1,5 @@
 *main*.py
-*.db
+a.db
 *main.sql
 *.swp
 __pycache__/
