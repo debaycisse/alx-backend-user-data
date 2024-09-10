@@ -58,7 +58,7 @@ def login():
 @app.route('/sessions', methods=['DELETE'])
 def logout():
     """Log a user out of the system"""
-    session_id = request.cookies.get("session_id")
+    session_id: Union[str, None] = request.cookies.get("session_id")
     user: User = AUTH.get_user_from_session_id(session_id)
 
     if user is None:
@@ -67,5 +67,16 @@ def logout():
     return redirect(url_for('entry_point'))
 
 
+@app.route('/profile', methods=['GET'])
+def profile():
+    """Finds a current user and returns their email"""
+    session_id = request.cookies.get("session_id")
+    user: User = AUTH.get_user_from_session_id(session_id)
+
+    if user is None:
+        abort(403)
+    return jsonify({"email": user.email})
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5000")
+    app.run(host="0.0.0.0", port="5000", debug=True)

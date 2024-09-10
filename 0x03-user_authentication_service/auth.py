@@ -102,7 +102,7 @@ database.
             return None
         return session_id
 
-    def get_user_from_session_id(self, session_id: str):
+    def get_user_from_session_id(self, session_id: str) -> User:
         """Retrieves a user object via its session id attribute
 
         Args:
@@ -114,16 +114,13 @@ database.
         if (session_id is None) or (not isinstance(session_id, str)):
             return None
         user: Union[User, None] = None
-        u_session_id: Union[None, str] = None
         try:
             user = self._db.find_user_by(session_id=session_id)
         except NoResultFound:
             return None
-        if user:
-            u_session_id = user.session_id
-        if u_session_id is None:
+        if user is None:
             return None
-        return u_session_id
+        return user
 
     def destroy_session(self, user_id) -> None:
         """Destroys a user's session from the database
