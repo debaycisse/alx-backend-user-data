@@ -102,7 +102,7 @@ database.
             return None
         return session_id
 
-    def get_user_from_session_id(self, session_id: str) -> User:
+    def get_user_from_session_id(self, session_id: str) -> Union[User, None]:
         """Retrieves a user object via its session id attribute
 
         Args:
@@ -130,3 +130,21 @@ database.
             whose session is to be destroyed
         """
         self._db.update_user(user_id, session_id=None)
+
+    def get_reset_password_token(self, email: str) -> str:
+        """Finds the corresponding user of the email
+        and generates a password reset token for it
+
+        Args:
+            email - the email of the user whose
+            password reset token is to be generated
+
+        Returns:
+            the generated password reset token
+        """
+        user: User = self._db.find_user_by(email=email)
+        if user is None:
+            raise ValueError("User does not exists")
+        reset_token = _generate_uuid()
+        self._db.update_user(reset_token=reset_token)
+        return reset_token
