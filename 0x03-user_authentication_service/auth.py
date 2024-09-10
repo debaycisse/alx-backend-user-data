@@ -124,3 +124,12 @@ database.
         if u_session_id is None:
             return None
         return u_session_id
+
+    def destroy_session(self, user_id) -> None:
+        """Destroys a user's session from the database
+
+        Args:
+            user_id - identifier value for the user
+            whose session is to be destroyed
+        """
+        self._db.update_user(user_id, session_id=None)
