@@ -91,6 +91,8 @@ database.
         Returns:
             the session id, associated to a user is returned
         """
+        if (email is None) or (not isinstance(email, str)):
+            return None
         session_id: Union[str, None] = None
         try:
             user: User = self._db.find_user_by(email=email)
@@ -99,3 +101,26 @@ database.
         except NoResultFound:
             return None
         return session_id
+
+    def get_user_from_session_id(self, session_id: str):
+        """Retrieves a user object via its session id attribute
+
+        Args:
+            session_id - the value of the session id for a user to look up
+
+        Returns:
+            a user's instance if found, otherwise None
+        """
+        if (session_id is None) or (not isinstance(session_id, str)):
+            return None
+        user: Union[User, None] = None
+        u_session_id: Union[None, str] = None
+        try:
+            user = self._db.find_user_by(session_id=session_id)
+        except NoResultFound:
+            return None
+        if user:
+            u_session_id = user.session_id
+        if u_session_id is None:
+            return None
+        return u_session_id
