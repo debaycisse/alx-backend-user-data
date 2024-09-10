@@ -57,6 +57,10 @@ database.
         Returns:
             True if the credentials are correct, otherwise False
         """
+        if email is None or password is None:
+            return False
+        if (not isinstance(email, str)) or (not isinstance(password, str)):
+            return False
         try:
             user: User = self._db.find_user_by(email=email)
             if user is None:
