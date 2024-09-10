@@ -83,11 +83,11 @@ def get_reset_password_token():
     """resets a user's rest_token and stores it"""
     email: str = request.form.get("email")
     try:
-        token = self._db.get_reset_password_token(email)
+        token = AUTH.get_reset_password_token(email)
     except ValueError:
         abort(403)
     return jsonify({"email": email, "reset_token": token})
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port="5000", debug=True)
+    app.run(host="0.0.0.0", port="5000")

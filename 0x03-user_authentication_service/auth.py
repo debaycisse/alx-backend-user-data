@@ -148,3 +148,19 @@ database.
         reset_token = _generate_uuid()
         self._db.update_user(reset_token=reset_token)
         return reset_token
+
+    def update_password(self, reset_token: str, password: str):
+        """Resets a password by updating user's password
+
+        Args:
+            reset_token - a password rest token
+            password - a new password's value
+        """
+        user: User = self._db.find_user_by(reset_token=reset_token)
+
+        if user is None:
+            raise ValueError("User does not exists")
+        hash_pwd: bytes = _hash_password(password)
+        self._db.update_user(user.id,
+                             hashed_password=hash_pwd,
+                             reset_token=None)
