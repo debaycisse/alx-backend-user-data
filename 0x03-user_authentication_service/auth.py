@@ -4,6 +4,7 @@ of the authentication aspect of the program"""
 import bcrypt
 from db import DB
 from user import User
+from sqlalchemy.orm.exc import NoResultFound
 
 
 def _hash_password(password: str) -> bytes:
@@ -20,13 +21,13 @@ def _hash_password(password: str) -> bytes:
 
 
 class Auth:
-    """Auth class to interact with the authentication 
+    """Auth class to interact with the authentication
 database.
     """
     def __init__(self):
         self._db = DB()
 
-    def register_uswr(self, email: str, password: str) -> User:
+    def register_user(self, email: str, password: str) -> User:
         """Registers a new user and stores the user's data in the database
 
         Args:
@@ -36,9 +37,11 @@ database.
         Returns:
             the uswr object of the new user, if no error, otherwise an error
         """
-        user = self._db.find_user_by(email=email)
-        if not (user is None):
-            raise ValueError("User {0} already exists.".format(email))
-        pwd = _hash_password(password)
-        user = self._db.add_user(email, pwd)
+        try:
+            user = self._db.find_user_by(email=email)
+            if not (user is None):
+                raise ValueError("User {0} already exists".format(email))
+        except NoResultFound:
+            pwd = _hash_password(password)
+            user = self._db.add_user(email, pwd)
         return user
