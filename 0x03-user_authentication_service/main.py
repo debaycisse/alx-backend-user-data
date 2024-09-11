@@ -10,26 +10,28 @@ _URL = "http://localhost:5000/{}"
 
 def register_user(email: str, password: str) -> None:
     """Registers a new user and stores them into the database
-    
+
     Args:
         email - email address of the new user
         password - password of the new user
     """
     data = {"email": email, "password": password}
-    response = requests.post(_URL.format('users'), data = data)
+    response = requests.post(_URL.format('users'), data=data)
     assert response.status_code == 200
     assert response.json() == {"email": email, "message": "user created"}
 
+
 def log_in_wrong_password(email: str, password: str) -> None:
     """Tests that wrong password is rejected
-    
+
     Args:
         email - email address of an existing user
         password - wrong password of an existing user
     """
     data = {"email": email, "password": password}
-    response = requests.post(_URL.format('sessions'), data = data)
+    response = requests.post(_URL.format('sessions'), data=data)
     assert response.status_code == 401
+
 
 def log_in(email: str, password: str) -> str:
     """Tests that an existing user can login
@@ -39,18 +41,20 @@ def log_in(email: str, password: str) -> str:
         password - password of an existing user
     """
     data = {"email": email, "password": password}
-    response = requests.post(_URL.format('sessions'), data = data)
+    response = requests.post(_URL.format('sessions'), data=data)
     assert response.status_code == 200
     assert response.json() == {"email": email, "message": "logged in"}
     return response.cookies['session_id']
 
-def profile_unlogged() -> None :
+
+def profile_unlogged() -> None:
     """Tests the behavior of visiting a profile end
     point by a user who is not logged"""
 
     cookies = {'session_id': None}
-    response = requests.get(_URL.format('profile'), cookies = cookies)
+    response = requests.get(_URL.format('profile'), cookies=cookies)
     assert response.status_code == 403
+
 
 def profile_logged(session_id: str) -> None:
     """Tests that profile end point works well with a correct session id
@@ -59,9 +63,10 @@ def profile_logged(session_id: str) -> None:
         session_id - value of a valid session id
     """
     cookies = {'session_id': session_id}
-    response = requests.get(_URL.format('profile'), cookies = cookies)
+    response = requests.get(_URL.format('profile'), cookies=cookies)
     assert response.status_code == 200
     assert response.json() == {"email": "guillaume@holberton.io"}
+
 
 def log_out(session_id: str) -> None:
     """Tests that user is logged out correctly
@@ -69,9 +74,10 @@ def log_out(session_id: str) -> None:
     Args:
         session_id - the session id of the current user, to be logged out
     """
-    data = {"session_id": session_id}
-    response = requests.delete(_URL.format('sessions'), data = data)
-    assert response.status_code == 302
+    cookies = {"session_id": session_id}
+    response = requests.delete(_URL.format('sessions'), cookies=cookies)
+    assert response.status_code == 200
+
 
 def reset_password_token(email: str) -> str:
     """Tests that password token endpoint works correctly
@@ -83,11 +89,12 @@ def reset_password_token(email: str) -> str:
         the password reset token is returned
     """
     data = {"email": email}
-    response = requests.post(_URL.format('reset_password'), data = data)
+    response = requests.post(_URL.format('reset_password'), data=data)
     assert response.status_code == 200
     reset_token = response.json().get("reset_token")
     assert response.json() == {"email": email, "reset_token": reset_token}
     return reset_token
+
 
 def update_password(email: str, reset_token: str, new_password: str) -> None:
     """Tests that the endpoint that updates the password works as expected
@@ -97,13 +104,13 @@ def update_password(email: str, reset_token: str, new_password: str) -> None:
         reset_token - the reset token' value, previously requested
         new_password - new password to change to
     """
-    data = dict(email = email,
-                reset_token = reset_token,
-                new_password = new_password)
-    response = requests.put(_URL.format('reset_password'), data = data)
+    data = dict(email=email,
+                reset_token=reset_token,
+                new_password=new_password)
+    response = requests.put(_URL.format('reset_password'), data=data)
     assert response.status_code == 200
     assert response.json() == {"email": email, "message": "Password updated"}
-    
+
 
 EMAIL = "guillaume@holberton.io"
 PASSWD = "b4l0u"

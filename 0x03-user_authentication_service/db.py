@@ -2,7 +2,10 @@
 """This module houses the implementation of the DB class"""
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import (
+    sessionmaker,
+    scoped_session
+)
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy.exc import InvalidRequestError
@@ -24,7 +27,11 @@ class DB:
     def __init__(self) -> None:
         """Initialize a new DB instance
         """
-        self._engine = create_engine("sqlite:///a.db", echo=False)
+        self._engine = create_engine("sqlite:///a.db",
+                                     echo=False,
+                                     connect_args={
+                                        'check_same_thread': False}
+                                     )
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session: Union[Session, None] = None
@@ -34,19 +41,18 @@ class DB:
         """Memoized session object
         """
         if self.__session is None:
-            DBSession = sessionmaker(bind=self._engine)
+            DBSession = scoped_session(sessionmaker(bind=self._engine))
             self.__session = DBSession()
         return self.__session
 
     def add_user(self, email: str, hashed_password: str) -> User:
         """Adds a user object to the database"""
         user = User(email=email, hashed_password=hashed_password)
-        session: Session = self._session
         try:
-            session.add(user)
-            session.commit()
+            self._session.add(user)
+            self._session.commit()
         except Exception as e:
-            session.rollback()
+            self._session.rollback()
         return user
 
     def find_user_by(self, *args: List, **kwargs: Any) -> User:
@@ -60,9 +66,10 @@ class DB:
             An instance of the user class, if found, otherwise
             NoResultFound and InvalidRequestError are raised
         """
-        session: Session = self._session
+        if len(kwargs) <= 0:
+            raise NoResultFound
         try:
-            user = session.query(User).filter_by(**kwargs).first()
+            user = self._session.query(User).filter_by(**kwargs).first()
             if user is None:
                 raise NoResultFound
         except NoResultFound:
@@ -79,7 +86,6 @@ class DB:
             whose attributes are to be updated
             kwargs - a list of arbitrary keyword arguments
         """
-        session: Session = self._session
         user = self.find_user_by(id=user_id)
         if not (user is None):
             try:
@@ -89,6 +95,6 @@ class DB:
                     else:
                         raise ValueError
             except ValueError:
-                session.rollback()
+                self._session.rollback()
                 raise ValueError("Invalid attribute")
-            session.commit()
+            self._session.commit()
